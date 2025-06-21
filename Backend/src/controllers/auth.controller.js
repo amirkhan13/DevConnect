@@ -27,7 +27,7 @@ const registerUser = asyncHandler(async (req, res)=>{
     
      const { username,email ,password } = req.body
     
-    console.log("req.body:", req.body);
+    
 
     if( 
         [username , email , password].some((field) =>field?.trim() ==="")
@@ -182,10 +182,42 @@ const refershAccessToken = asyncHandler(async(req , res)=>{
   }
 })
 
+
+const changePassword = asyncHandler(async(req , res)=>{
+    const {oldPassword , newPassword} = req.body;
+
+    if(!oldPassword || !newPassword){
+        throw new ApiError(400 , "All fields are required");
+    }
+
+    if(newPassword.length < 6){
+        throw new ApiError(400 , "Password must be at least 8 characters long");
+    }
+
+    const user = await User.findById(req.user._id);
+
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+    if(!isPasswordCorrect){
+        throw new ApiError(401 , "Invalid old password");
+    }
+
+    user.password = newPassword;
+
+    await user.save({validateBeforeSave:false});
+
+    return res.status(200).json(
+        new ApiResponse(200 , {} , "Password Changed Successfully")
+    )
+
+
+})
+
 export {
     registerUser,
     loginUser,
     logoutUser,
-    refershAccessToken
+    refershAccessToken,
+    changePassword
 
 }
