@@ -18,11 +18,14 @@ app.use(cookieParser())
 
 //routes import
 import  userRouter from './routes/user.routes.js'
+import projectRouter from './routes/project.routes.js'
 
 
 //routes declaration
 app.use("/api/v1/users" , userRouter) //since in app.get() we were writing controller ,routes at same place, we didn't have to user 
 // middleware there but here we have to..
+
+app.use("/api/v1/projects" , projectRouter)
 
 
 

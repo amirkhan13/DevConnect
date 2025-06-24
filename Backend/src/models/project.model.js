@@ -20,19 +20,20 @@ const projectSchema = new Schema({
     ],
     githubLink:{
         type:String,
-        required:true
+        
     },
     thumbnail:{
         type:String
     },
     createdBy:{
         type:Schema.Types.ObjectId,
-        ref:"User"
+        ref:"User",
+        require:true
     },
-    likes:{
+    likes:[{
         type:Schema.Types.ObjectId,
         ref:"User"
-    },
+    }],
     collaborators:{
         type:Schema.Types.ObjectId,
         ref:"User"

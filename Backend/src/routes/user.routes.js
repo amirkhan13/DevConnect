@@ -2,7 +2,6 @@ import { Router } from "express";
 import { changePassword, loginUser, logoutUser, refershAccessToken, registerUser } from "../controllers/auth.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { deleteUserAccount, getCurrentUser, getUserByUsername, updateUserAvatar, updateUserCoverImage, updateUserProfile } from "../controllers/user.controller.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 
