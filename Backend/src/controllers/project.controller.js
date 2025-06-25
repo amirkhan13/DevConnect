@@ -2,6 +2,7 @@ import { Project } from "../models/project.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 
 
@@ -12,7 +13,7 @@ const createProject = asyncHandler(async(req  ,res)=>{
         // create the project
         // send res
 
-        const {title ,description,techstack,githubLink,collaborators=[],thumbnail} = req.body
+        const {title ,description,techstack,githubLink,collaborators=[]} = req.body
 
          if (
             [title, description, githubLink].some(field => typeof field !== 'string' || field.trim() === "") ||
@@ -22,15 +23,27 @@ const createProject = asyncHandler(async(req  ,res)=>{
             throw new ApiError(400, "Invalid or missing fields.");
              }
 
+            const thumbnailLocalPath = req?.file.path;
+
+            if(!thumbnailLocalPath){
+                throw new ApiError(400,"thumbnail is required");
+            }
+
+            const thumbnailURL = await uploadOnCloudinary(thumbnailLocalPath);
+
+            if(!thumbnailURL.url){
+               throw new ApiError(400, "Error while uploading thumbnail image");
+            }
+
 
         const newProject = await Project.create({
             title,
             description,
             techstack,
             githubLink,
+            thumbnail:thumbnailURL.url,
             createdBy:req.user._id,
             collaborators,
-            thumbnail
         })
 
 
@@ -43,6 +56,7 @@ const createProject = asyncHandler(async(req  ,res)=>{
 const getAllProjects = asyncHandler(async(req , res)=>{
     const projects = await Project.find({})
     .populate("createdBy" , "username avatar")
+    .populate("collaborators" , "username avatar ")
     .sort({createdAt : -1});
 
     return res.status(200)
@@ -54,6 +68,8 @@ const getAllProjects = asyncHandler(async(req , res)=>{
 
 const getMyProject = asyncHandler(async(req , res)=>{
         const project = await Project.find({createdBy: req.user._id})
+        .populate("createdBy" , "username avatar fullName")
+        .populate("collaborators" , "username avatar ")
         .sort({createdAt : -1})
 
         if(!project){
@@ -94,7 +110,6 @@ const updateProject = asyncHandler(async(req , res)=>{
                  "description",
                 "techstack",
                 "githubLink",
-                "thumbnail",
                 "collaborators",
             ];
 
@@ -102,7 +117,17 @@ const updateProject = asyncHandler(async(req , res)=>{
                 if(req.body[field] !== undefined){
                     project[field] = req.body[field]
                 }
-            })            
+            })  
+            
+            if (req.file?.path) {
+                const cloudinaryResult = await uploadOnCloudinary(req.file.path);
+
+                if (!cloudinaryResult?.url) {
+                throw new ApiError(400, "Failed to upload new thumbnail");
+                }
+
+                project.thumbnail = cloudinaryResult.url;
+            }
 
             await project.save();
 
@@ -197,6 +222,7 @@ const getProjectByUser = asyncHandler(async(req , res)=>{
 
     const projects = await Project.find({createdBy: userId})
     .populate("createdBy" , "username avatar fullName")
+    .populate("collaborators" , "username avatar ")
     .sort({createdAt : -1})
 
 

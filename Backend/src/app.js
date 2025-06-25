@@ -19,6 +19,7 @@ app.use(cookieParser())
 //routes import
 import  userRouter from './routes/user.routes.js'
 import projectRouter from './routes/project.routes.js'
+import postRouter from './routes/post.routes.js'
 
 
 //routes declaration
@@ -26,6 +27,8 @@ app.use("/api/v1/users" , userRouter) //since in app.get() we were writing contr
 // middleware there but here we have to..
 
 app.use("/api/v1/projects" , projectRouter)
+
+app.use("api/v1/posts" ,postRouter)
 
 
 

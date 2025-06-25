@@ -8,7 +8,7 @@ const projectSchema = new Schema({
     },
 
     description:{
-        tyoe:String,
+        type:String,
         required:true
     },
     techstack:[
@@ -28,16 +28,16 @@ const projectSchema = new Schema({
     createdBy:{
         type:Schema.Types.ObjectId,
         ref:"User",
-        require:true
+        
     },
     likes:[{
         type:Schema.Types.ObjectId,
         ref:"User"
     }],
-    collaborators:{
+    collaborators:[{
         type:Schema.Types.ObjectId,
         ref:"User"
-    }
+    }]
 
 
 },{timestamps: true})

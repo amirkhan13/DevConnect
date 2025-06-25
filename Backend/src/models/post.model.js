@@ -9,10 +9,10 @@ const postSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref: "User",
     },
-    tags:{
+    tags:[{
         type:String,
 
-    },
+    }],
     likes:[{
         type:Schema.Types.ObjectId,
         ref:"User",
