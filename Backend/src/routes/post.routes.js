@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { addCommentToPost, createPost, deleteCommentToPost, deletePost, getAllPosts, getMyPosts, getSinglePost, toggleLikePost, updatePost } from "../controllers/post.controller";
-import { verifyJWT } from "../middlewares/auth.middleware";
+import { addCommentToPost, createPost, deleteCommentToPost, deletePost, getAllPosts, getMyPosts, getSinglePost, toggleLikePost, updatePost } from "../controllers/post.controller.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router()
 

@@ -18,8 +18,11 @@ const postSchema = new Schema({
         ref:"User",
     }],
     comments:[{
-        user:Schema.Types.ObjectId,
-        ref:"User",
+        user:{
+
+           type:Schema.Types.ObjectId,
+            ref:"User",
+        },
         text: String
     }]
 
