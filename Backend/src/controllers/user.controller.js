@@ -6,12 +6,15 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 
 
-const getCurrentUser = asyncHandler(async(req, res)=>{
-   return res.status(200).json({
-      user: req.user,
-      message: " User fetched successfully"
-   });
-})
+const getCurrentUser = asyncHandler(async (req, res) => {
+  
+  return res.status(200).json({
+    user: req.user, 
+    message: "User fetched successfully"
+  });
+});
+
+
 
 const getUserByUsername = asyncHandler(async(req , res)=>{
     const {username} = req.params;
@@ -33,39 +36,38 @@ const getUserByUsername = asyncHandler(async(req , res)=>{
     );
 })
 
-const updateUserProfile = asyncHandler(async(req , res)=>{
-    const {fullName , bio , skills ,github ,linkedin , website } = req.body;
+const updateUserProfile = asyncHandler(async (req, res) => {
+    const { fullName, bio, skills, github, linkedin, website } = req.body;
 
     const user = await User.findById(req.user._id);
-    if(!user){
+    if (!user) {
         throw new ApiError(404, "User not found");
     }
 
-    if(fullName) user.fullName = fullName;
-    if(bio) user.bio = bio;
-    if(skills && Array.isArray(skills)) user.skills = skills;
-    if(github) user.github = github;
-    if(linkedin) user.linkedin = linkedin;
-    if(website) user.website = website;
-    
+    if (fullName) user.fullName = fullName;
+    if (bio) user.bio = bio;
 
+    if (skills) {
+        if (Array.isArray(skills)) {
+            user.skills = skills;
+        } else if (typeof skills === "string") {
+            user.skills = skills.split(",").map(skill => skill.trim());
+        }
+    }
 
-    await user.save({validateBeforeSave:false});
+    if (github) user.github = github;
+    if (linkedin) user.linkedin = linkedin;
+    if (website) user.website = website;
 
+    await user.save({ validateBeforeSave: false });
 
     const updatedUser = await User.findById(user._id).select("-password -refreshToken");
-    
-    
 
     return res.status(200).json(
         new ApiResponse(200, updatedUser, "User profile updated successfully")
     );
+});
 
-
-
-
-    
-})
 
 const updateUserAvatar = asyncHandler(async(req , res)=>{
     const avatarLocalPath = req.file?.path

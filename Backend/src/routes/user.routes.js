@@ -9,6 +9,7 @@ const router = Router()
 
 router.route("/register").post(registerUser)
 router.route("/login").post(loginUser)
+router.route("/me").get(verifyJWT, getCurrentUser)
 router.route("/:username").get(getUserByUsername)
 
 // secured routes
@@ -16,7 +17,6 @@ router.route("/logout").post(verifyJWT,logoutUser)
 router.route("/refresh-token").post(refershAccessToken)
 router.route("/change-password").patch(verifyJWT , changePassword)
 router.route("/update-profile").put(verifyJWT , updateUserProfile)
-router.route("/me").get(verifyJWT , getCurrentUser)
 router.route("/upload-avatar").put(verifyJWT ,upload.single("avatar"),updateUserAvatar);
 router.route("/upload-coverImage").put(verifyJWT ,upload.single("coverImage"),updateUserCoverImage);
 router.route("/delete").delete(verifyJWT ,deleteUserAccount);

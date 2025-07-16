@@ -7,12 +7,12 @@ const router = Router()
 //public routes
 
 router.route("/").get(getAllResource)
-router.route("category/:category").get(getResourcesByCategory)
+router.route("/category/:category").get(getResourcesByCategory)
 
 //secured routes
 router.route("/add-resource").post(verifyJWT,addResource)
 router.route("/myresources").get(verifyJWT,getMyResources)
-router.route("/delete-resource").delete(verifyJWT,deleteResource)
+router.route("/:id/delete-resource").delete(verifyJWT,deleteResource)
 
 
 

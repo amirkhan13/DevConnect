@@ -190,6 +190,10 @@ const changePassword = asyncHandler(async(req , res)=>{
         throw new ApiError(400 , "All fields are required");
     }
 
+    if(oldPassword === newPassword){
+        throw new ApiError(400, "Cannot change the same old password");
+    }
+
     if(newPassword.length < 6){
         throw new ApiError(400 , "Password must be at least 8 characters long");
     }

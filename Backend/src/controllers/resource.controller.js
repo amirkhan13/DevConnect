@@ -20,7 +20,7 @@ const addResource = asyncHandler(async(req ,res)=>{
 
      return res.status(201)
      .json(
-            ApiResponse(201 , resource , "resource created ")
+           new  ApiResponse(201 , resource , "resource created ")
      )
 })
 
