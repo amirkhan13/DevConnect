@@ -38,7 +38,7 @@ app.use("/api/v1/resources" ,resourceRouter)
 
 app.use("/api/v1/messages" ,messageRouter)
 
-app.use("/api/v1/follow" , followRouter)
+app.use("/api/v1/followers" , followRouter)
 
 
 
