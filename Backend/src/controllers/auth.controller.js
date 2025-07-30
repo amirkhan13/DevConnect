@@ -2,7 +2,11 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { OAuth2Client } from 'google-auth-library';
 import jwt from "jsonwebtoken"
+
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 
 const genereateAccessAndRefreshToken =async (userId)=>{
@@ -64,6 +68,55 @@ const registerUser = asyncHandler(async (req, res)=>{
 
 })
 
+const googleLogin = asyncHandler(async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) {
+    throw new ApiError(400, "Missing Google credential");
+  }
+
+  const ticket = await client.verifyIdToken({
+    idToken: credential,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+
+  const payload = ticket.getPayload();
+  const { email, name, picture } = payload;
+
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    user = await User.create({
+      username: name,
+      email,
+      avatar: picture,
+      password: 'GOOGLE_AUTH',
+    });
+  }
+
+  const { accessToken, refreshToken } = await genereateAccessAndRefreshToken(user._id);
+
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  const loggedInUser = await User.findById(user._id).select('-password -refreshToken');
+
+  const options = {
+    httpOnly: true,
+    secure: true, // true in production (https)
+    sameSite: 'None', // Required for cross-origin cookies
+  };
+
+  return res
+    .status(200)
+    .cookie('refreshToken', refreshToken, options)
+    .json(
+      new ApiResponse(200, {
+        user: loggedInUser,
+        accessToken,
+      }, "Google login successful")
+    );
+});
+
 const loginUser = asyncHandler(async(req, res)=>{
     //req body ->data
     //username or email
@@ -113,6 +166,9 @@ const loginUser = asyncHandler(async(req, res)=>{
        )
 
 })
+
+
+
 
 const logoutUser = asyncHandler(async(req , res)=>{
    await User.findByIdAndUpdate(
@@ -217,11 +273,16 @@ const changePassword = asyncHandler(async(req , res)=>{
 
 })
 
+
+
+
+
 export {
     registerUser,
     loginUser,
     logoutUser,
     refershAccessToken,
-    changePassword
+    changePassword,
+    googleLogin
 
 }

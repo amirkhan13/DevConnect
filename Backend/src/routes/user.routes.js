@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { changePassword, loginUser, logoutUser, refershAccessToken, registerUser } from "../controllers/auth.controller.js";
+import { changePassword, googleLogin, loginUser, logoutUser, refershAccessToken, registerUser } from "../controllers/auth.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { deleteUserAccount, getCurrentUser, getUserByUsername, updateUserAvatar, updateUserCoverImage, updateUserProfile } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -9,6 +9,7 @@ const router = Router()
 
 router.route("/register").post(registerUser)
 router.route("/login").post(loginUser)
+router.route("/google-login").post(googleLogin)
 router.route("/me").get(verifyJWT, getCurrentUser)
 router.route("/:username").get(getUserByUsername)
 

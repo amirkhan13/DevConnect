@@ -1,19 +1,22 @@
 import React, { useState } from 'react'
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { setError, setLoading, setUser } from '../store/authSlice';
+import Loader from './Loader';
 
-// import { GoogleLogin, googleLogout } from "@react-oauth/google";
-// import { FcGoogle } from "react-icons/fc"
+import { GoogleLogin } from "@react-oauth/google";
+
 
 
 function Register() {
   const navigate = useNavigate()
 
   const dispatch = useDispatch();
+
+  const loading = useSelector((state)=>state.auth.loading)
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -22,6 +25,13 @@ function Register() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    dispatch(setLoading())
+
+    if (password.length < 8) {
+    toast.error("Password must be at least 8 characters long.");
+    return;
+  }
     dispatch(setLoading());
 
     const data = {
@@ -42,6 +52,7 @@ function Register() {
         setEmail('');
         setPassword('');
       }
+      
 
     } catch (error) {
 
@@ -54,6 +65,17 @@ function Register() {
 
   }
 
+  const handleGoogleSuccess = async (response)=>{
+        try {
+          const res = await axios.post("api/v1/users/google-login" ,{credential:response.credential},{withCredentials:true});
+          dispatch(setUser(res.data.data));
+          localStorage.setItem('user', JSON.stringify(res.data.data));
+          toast.success('Google login Successfull');
+          navigate('/feed')
+        } catch (error) {
+          toast.error(error.response?.data?.message ||'Google login failed');
+        }
+    }
 
 
   return (
@@ -64,7 +86,7 @@ function Register() {
         className='bg-white p-6 rounded-2xl shadow-md w-full max-w-md space-y-4'
       >
 
-        <h2 className='text-2xl font-bold text-center text-purple-500'>Create Account</h2>
+        <h2 className='text-2xl font-bold text-center text-purple-700'>Create Account</h2>
 
         <div>
           <label className="block mb-1 text-sm font-medium " htmlFor='username'>username:</label>
@@ -98,17 +120,22 @@ function Register() {
             id='password'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            minLength={8}
             className='w-full border border-purple-400 rounded px-4 py-2'
             required
           />
         </div>
 
-        <button
+        {loading ?(
+          <Loader/>
+        ) :(
+           <button
           className="w-full bg-purple-700 text-white font-semibold py-2 rounded-md hover:bg-purple-500 transition"
         >
           Register
 
         </button>
+        )}
 
         <div className="flex items-center my-2">
           <hr className="flex-grow border-gray-300" />
@@ -116,20 +143,15 @@ function Register() {
           <hr className="flex-grow border-gray-300" />
         </div>
 
-        {/* <GoogleLogin
-          // onSuccess={handleGoogleSuccess}
-          // onError={handleGoogleError}
-          render={(renderProps) => (
-            <button
-              onClick={renderProps.onClick}
-              disabled={renderProps.disabled}
-              className="w-full border border-gray-300 rounded flex items-center justify-center gap-2 py-2 hover:bg-gray-100 transition"
-            >
-              <FcGoogle size={20} />
-              <span >Sign up with Google</span>
-            </button>
-          )}
-        /> */}
+        <div className="flex justify-center">
+                 <GoogleLogin
+                   theme='filled_black'
+                   shape='pill'
+                   size='large'
+                   onSuccess={handleGoogleSuccess}
+                   onError={() => toast.error("Google login failed")}
+                 />
+               </div>
 
         <p className="text-center text-sm">
           Already have an account?{" "}
