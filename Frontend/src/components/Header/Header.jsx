@@ -55,8 +55,9 @@ function Header() {
   };
 
   return (
-    <header className="bg-white shadow-md px-4 py-3 flex flex-wrap items-center justify-between">
-      <div className="flex items-center gap-4 w-full md:w-1/2">
+<header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-4 py-3 flex flex-wrap items-center justify-between">
+
+      <div className="flex items-center gap-4 w-full  md:w-1/2">
         <div className="text-2xl font-bold text-purple-600 whitespace-nowrap">
           DevConnect
         </div>
@@ -93,7 +94,7 @@ function Header() {
 
         <div className="relative" ref={dropdownRef}>
           <img
-            src={user?.avatar}
+            src={user?.avatar || "/imgs/default avatar.jpg"}
             alt="Profile"
             className="w-10 h-10 rounded-full border-2 border-purple-400 cursor-pointer"
             onClick={() => setDropdownOpen(!dropdownOpen)}

@@ -1,66 +1,77 @@
-import React, { useEffect, useState } from 'react';
-import Header from '../components/Header/Header'
-import Footer from '../components/Footer/Footer'
-import { useDispatch } from 'react-redux';
+import React, { useEffect } from 'react';
+import Header from '../components/Header/Header';
+import Footer from '../components/Footer/Footer';
+import { useDispatch, useSelector } from 'react-redux';
 import LeftSidebar from './LeftSideBar';
-import { setError, setLoading, setUser } from '../store/authSlice';
-import axios from 'axios';
 import CreatePost from './CreatePost';
-
+import PostCard from './PostCard';
+import { setError, setLoading, setUser } from '../store/authSlice';
+import { setPosts } from '../store/postSlice';
+import axios from 'axios';
 
 const Feed = () => {
+  const dispatch = useDispatch();
+  const posts = useSelector((state) => state.posts.posts);
 
-    const dispatch = useDispatch();
-    const[showModal , setShowModal] = useState(false);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
 
-    useEffect(() => {
-
-        const fetchUser =async()=>{
-            try {
-                const {data} = await axios.get('/api/v1/users/me');
-                dispatch(setUser(data.user))
-            } catch (error) {
-                console.log("failed to fetch the user" , error);
-                
-            }
+        const { data } = await axios.get('/api/v1/users/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        dispatch(setUser(data.user));
+      } catch (error) {
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
         }
+        dispatch(setError(error.response?.data?.message || "Failed to fetch user"));
+      }
+    };
 
-        fetchUser();
+    const fetchPosts = async () => {
+      try {
+        dispatch(setLoading(true));
+        const token = localStorage.getItem('token');
+        const { data } = await axios.get('/api/v1/posts/getAllPosts', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        dispatch(setPosts(data.data));
+        dispatch(setLoading(false));
+      } catch (err) {
+        dispatch(setError("Failed to fetch posts"));
+        dispatch(setLoading(false));
+      }
+    };
 
-    
-     
-    }, [dispatch])
-    
+    fetchUser();
+    fetchPosts();
+  }, [dispatch]);
+
   return (
-    <>
-   
-        <Header/>
-    <div className='flex'>
-  
-        <LeftSidebar/>
-        <CreatePost/>
+    <div className="flex justify-evenly flex-col min-h-screen my-10">
+      <Header />
 
-
-    {/* <div className="max-w-2xl mx-auto p-4 space-y-4"> */}
-
-      {/* {posts.map(post => (
-        <div key={post.id} className="bg-white shadow-md rounded-xl p-4 hover:shadow-lg transition">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-full bg-gray-200" />
-            <div>
-              <h2 className="font-bold text-lg">{post.name}</h2>
-              <p className="text-sm text-gray-500">{post.title}</p>
-            </div>
-          </div>
-          <p className="mt-4 text-gray-800">{post.content}</p>
-          <p className="text-sm text-gray-400 mt-2">{post.time}</p>
+      <div className="flex flex-1 w-full bg-gray-50">
+        <div className="hidden lg:block">
+          <LeftSidebar />
         </div>
-      ))}
-    </div> */}
-    {/* <Footer/>    */}
+
+        <main className="flex-grow w-full max-w-3xl mx-auto px-4 py-6">
+          <CreatePost />
+          <div className="mt-6 space-y-6">
+            {posts.map((post, index) => (
+              <PostCard key={index} post={post} />
+            ))}
+
+          </div>
+        </main>
       </div>
 
-       </>
+      <Footer />
+    </div>
   );
 };
 

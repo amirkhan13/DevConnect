@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { addPost } from '../store/postSlice';
 import { toast } from 'react-toastify';
 
+
 function CreatePost({ showModal, setShowModal }) {
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');

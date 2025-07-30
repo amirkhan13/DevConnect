@@ -3,15 +3,11 @@ import { FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
 
 function Footer() {
   return (
-    <footer className="bg-gray-100 py-6 mt-10 shadow-inner">
+      <footer className="w-full bg-gray-100 text-center py-4 mt-auto">
       <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-gray-700">
-        
-        {/* Left: Brand or Message */}
         <div className="text-center md:text-left mb-2 md:mb-0 font-semibold text-purple-500">
           © 2025 DevConnect. All rights reserved.
         </div>
-
-        {/* Right: Social Icons */}
         <div className="flex space-x-4">
           <a href="#" className="hover:text-purple-600 transition">
             <FaGithub size={20} />

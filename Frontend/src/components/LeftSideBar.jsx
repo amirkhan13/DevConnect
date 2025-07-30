@@ -8,7 +8,7 @@ function LeftSidebar() {
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div className="w-[250px] bg-white shadow-md h-auto sticky my-6 mx-16 border rounded-lg p-4 hidden lg:block">
+    <div className="w-[250px] bg-white shadow-md mx-5 h-fit sticky top-24 self-start border rounded-lg p-4 hidden lg:block">
       <div className="relative h-32 w-full mb-10">
         <img
           src={user?.CoverImage || "/imgs/default-CoverImage.jpg"}
@@ -23,7 +23,9 @@ function LeftSidebar() {
       </div>
 
       <div className="mt-12 text-center">
-        <h2 className="text-lg font-semibold">{user?.fullName || "User"}</h2>
+        <h2 className="text-lg font-semibold">
+          {user?.fullName || user?.username || "User"}
+        </h2>
         <p className="text-sm text-gray-500">{user?.Bio || "Developer"}</p>
 
         <div className="flex justify-center gap-2 mt-4 flex-wrap">
@@ -80,7 +82,6 @@ function LeftSidebar() {
         </div>
       </nav>
 
-     
       <CreatePost showModal={showModal} setShowModal={setShowModal} />
     </div>
   );

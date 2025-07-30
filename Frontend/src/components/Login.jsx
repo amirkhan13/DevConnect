@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast, ToastContainer } from 'react-toastify';
@@ -13,17 +13,22 @@ function Login() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const loading = useSelector((state)=>state.auth.loading)
+  const loading = useSelector((state) => state.auth.loading);
+  const hasNavigated = useRef(false);
 
   
-
   useEffect(() => {
-  const storedUser = JSON.parse(localStorage.getItem("user"));
-  if (storedUser) {
-    navigate('/feed');
-  }
-}, []);
-
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+      dispatch(setUser(JSON.parse(user)));
+      if (!hasNavigated.current && window.location.pathname === "/login") {
+        hasNavigated.current = true;
+        navigate('/feed');
+      }
+    }
+  }, [dispatch, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -37,15 +42,16 @@ function Login() {
 
     try {
       const res = await axios.post("/api/v1/users/login", data);
-      const { accessToken , user } = res.data.data;
+      const { accessToken, user } = res.data.data;
       dispatch(setUser(user));
-
       localStorage.setItem("token", accessToken);
-
       localStorage.setItem('user', JSON.stringify(user));
-
       toast.success('Logged In successfully!');
-      navigate('/feed');
+
+      if (!hasNavigated.current && window.location.pathname === "/login") {
+        hasNavigated.current = true;
+        navigate('/feed');
+      }
     } catch (error) {
       dispatch(setError(error.response?.data?.message || "Login failed"));
       toast.error(error.response?.data?.message || error.message || 'Something went wrong');
@@ -54,13 +60,26 @@ function Login() {
 
   const handleGoogleSuccess = async (response) => {
     try {
-      const res = await axios.post("api/v1/users/google-login", { credential: response.credential }, { withCredentials: true });
-      dispatch(setUser(res.data.data));
-      localStorage.setItem('user', JSON.stringify(res.data.data));
+      dispatch(setLoading());
+      const res = await axios.post("api/v1/users/google-login", { 
+        credential: response.credential 
+      });
+      
+      const { accessToken, user } = res.data.data;
+      dispatch(setUser(user));
+      localStorage.setItem("token", accessToken);
+      localStorage.setItem('user', JSON.stringify(user));
       toast.success('Google login successful');
-      navigate('/feed');
+
+      if (!hasNavigated.current) {
+        hasNavigated.current = true;
+        navigate('/feed');
+      }
     } catch (error) {
+      dispatch(setError(error.response?.data?.message || 'Google login failed'));
       toast.error(error.response?.data?.message || 'Google login failed');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   };
 
@@ -98,16 +117,16 @@ function Login() {
           />
         </div>
 
-       {loading ?(
-        <Loader/>
-       ):(
-         <button
-          type="submit"
-          className="w-full bg-purple-700 text-white font-semibold py-2 rounded-md hover:bg-purple-500 transition"
-        >
-          Login
-        </button>
-       )}
+        {loading ? (
+          <Loader />
+        ) : (
+          <button
+            type="submit"
+            className="w-full bg-purple-700 text-white font-semibold py-2 rounded-md hover:bg-purple-500 transition"
+          >
+            Login
+          </button>
+        )}
 
         <div className="flex items-center my-2">
           <hr className="flex-grow border-gray-300" />
