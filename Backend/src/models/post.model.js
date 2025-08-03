@@ -5,6 +5,10 @@ const postSchema = new Schema({
         type:String,
         required:true,
     },
+    imageURL:{
+        type:String,
+        
+    },
     author:{
         type:Schema.Types.ObjectId,
         ref: "User",

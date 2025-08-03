@@ -7,6 +7,8 @@ import ProctectedRoutes from './components/ProctectedRoutes'
 import NotFound from './components/NotFound'
 import Feed from './components/Feed'
 import CreatePost from './components/CreatePost'
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 
@@ -50,6 +52,7 @@ function App() {
 
            <Route path ='*' element={<NotFound/>}/>
        </Routes>
+        <ToastContainer position="top-right" autoClose={3000} />
     </>
   )
 }

@@ -4,7 +4,7 @@ import { FaHome, FaBook, FaRegNewspaper } from "react-icons/fa";
 import { BsChatDots } from 'react-icons/bs';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { setUser, setLoading, logoutUser, setError,  } from '../../store/authSlice';
+import { setUser, setLoading, logoutUser, setError } from '../../store/authSlice';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Header() {
@@ -18,7 +18,12 @@ function Header() {
     const fetchUser = async () => {
       try {
         dispatch(setLoading());
-        const res = await axios.get("/api/v1/users/me");
+        const token = localStorage.getItem('token');
+        const res = await axios.get("/api/v1/users/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         dispatch(setUser(res.data.user));
       } catch (error) {
         console.log(error);
@@ -37,27 +42,35 @@ function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = async () => {
+ const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem("token"); // Get token from localStorage
 
-    try {
-
-      const res  = await axios.post("/api/v1/users/logout" ,{} , {withCredentials:true})
-      if(res.status ==200){
-
-        dispatch(logoutUser());
-        navigate('/login')
+    const res = await axios.post(
+      "/api/v1/users/logout",
+      {}, // No body needed
+      {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ Send token in header
+        },
       }
-    } catch (error) {
-      dispatch(setError())
-    }
+    );
 
-    
-  };
+    if (res.status === 200) {
+      dispatch(logoutUser());
+      navigate("/login");
+    }
+  } catch (error) {
+    dispatch(setError());
+    console.log("Logout error:", error);
+    toast.error("Logout failed");
+  }
+};
 
   return (
-<header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-4 py-3 flex flex-wrap items-center justify-between">
-
-      <div className="flex items-center gap-4 w-full  md:w-1/2">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-4 py-3 flex flex-wrap items-center justify-between">
+      <div className="flex items-center gap-4 w-full md:w-1/2">
         <div className="text-2xl font-bold text-purple-600 whitespace-nowrap">
           DevConnect
         </div>
@@ -104,7 +117,7 @@ function Header() {
             <div className="absolute right-0 mt-2 w-56 bg-white border border-purple-500 rounded-lg shadow-lg z-50">
               <Link to="#" className="block px-4 py-2 text-sm text-purple-700 hover:bg-purple-50">Profile</Link>
               <Link to="/#" className="block px-4 py-2 text-sm text-purple-700 hover:bg-purple-50">Posts & Activity</Link>
-              <Link to="/create-post" className="block px-4 py-2 text-sm text-purple-700 hover:bg-purple-50">Projects </Link>
+              <Link to="/#" className="block px-4 py-2 text-sm text-purple-700 hover:bg-purple-50">Projects </Link>
               <Link to="/#" className="block px-4 py-2 text-sm text-purple-700 hover:bg-purple-50">Add Resources</Link>
               <Link to="/change-password" className="block px-4 py-2 text-sm text-purple-700 hover:bg-purple-50">Change Password</Link>
               <button
