@@ -26,7 +26,7 @@ const Feed = () => {
       });
       dispatch(setUser(data.user));
     } catch (error) {
-      dispatch(setError(error));
+      dispatch(setError("Failed to fetch the user"));
     }
   };
 

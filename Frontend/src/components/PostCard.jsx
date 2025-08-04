@@ -21,7 +21,7 @@ const PostCard = ({ post }) => {
   const isAuthor = currentUser?._id === post?.author?._id;
   const [showComments, setShowComments] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-  const [isLiked, setIsLiked] = useState(post.likes?.includes(currentUser._id));
+  const [isLiked, setIsLiked] = useState(post.likes?.includes(currentUser?._id));
   const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
 
   const handleLike = () => {

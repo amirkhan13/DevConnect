@@ -6,6 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { setUser, setLoading, logoutUser, setError } from '../../store/authSlice';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+
+
 
 function Header() {
   const dispatch = useDispatch();
